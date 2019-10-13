@@ -745,4 +745,20 @@ describe('repeat', () => {
       }
     });
   });
+
+  it('should run repeatable with stagger', function (done) {
+    queue.add({ foo: 'bar' }, { repeat: { every: 1000, stagger: 1000 } })
+      .then(function () {
+        const startTime = Date.now();
+
+        queue.on('active', () => {
+          expect(startTime - 2000).to.be.lt(Date.now());
+        });
+
+        queue.process(() => {
+          // dummy
+        });
+      });
+  })
+
 });
