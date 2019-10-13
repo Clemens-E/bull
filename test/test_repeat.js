@@ -747,18 +747,21 @@ describe('repeat', () => {
   });
 
   it('should run repeatable with stagger', function (done) {
-    queue.add({ foo: 'bar' }, { repeat: { every: 1000, stagger: 1000 } })
-      .then(function () {
-        const startTime = Date.now();
+    this.timeout(30000);
+    const _this = this;
+    const startTime = Date.now();
 
-        queue.on('active', () => {
-          expect(startTime - 2000).to.be.lt(Date.now());
-        });
+    queue.process(() => {
+      expect(startTime - 2000).to.be.lt(Date.now());
+      done();
+    });
 
-        queue.process(() => {
-          // dummy
-        });
-      });
-  })
+    queue
+      .add(
+        { foo: 'bar' },
+        { repeat: { every: 1000 }, stagger: 1000, }
+      )
+      .then(() => _this.clock.tick(ONE_SECOND * 3));
+  });
 
 });
